@@ -1,0 +1,413 @@
+#Maite Catalina Agudelo Cifuentes
+#Analisis descriptivo de datos en R
+#Versión: Julio 21 de 2024
+
+#Contexto: datos demográficos y de resiliencia de niños y niñas de cinco instituciones educativas
+
+install.packages("readxl")
+library(readxl)
+
+#Leer la data desde Windows
+BD<-read_excel("C:/Users/magudeloc/OneDrive - Universidad CES/2024/2024_Articulos/2024_Resiliencia_Giselly/20240620_BD_Resiliencia.xlsx", sheet="BD")
+
+#Leer la data desde Mac
+library(readxl)
+BD <- read_excel("Library/CloudStorage/OneDrive-UniversidadCES/2024/2024_Articulos/2024_Resiliencia_Giselly/20240620_BD_Resiliencia.xlsx", 
+                 sheet = "BD")
+View(BD)
+
+#Analisis exploratorio
+
+#Crear un conjunto de datos solo con las variables requeridas para analizar
+install.packages("tidyverse")
+library(tidyverse)
+
+desc=BD%>%
+  select(Institucion, Grado2, Sexo, Edad, Estrato, Municipio, Nacionalidad, Migrante, Discapacitado, TipoDiscapacidad, Desplazado, Indigena, LGTBQ, VictimaConfl, Desmovilizado, Afrodescendiente, AdolescenteGestante)
+
+#Etiquetar las variables cualitativas
+desc$Institucion <- factor(desc$Institucion,labels = c("IE1", "IE2","IE3","IE4","IE5"))
+desc$Sexo <- factor(desc$Sexo,labels = c("Masculino", "Femenino",NA))
+desc$Municipio <- factor(desc$Municipio,labels = c("Bello", "Medellín","Copacabana"))
+desc$Nacionalidad <- factor(desc$Nacionalidad,labels = c("Colombiano", "Venezolano","Ecuatoriano","Curazao"))
+desc$Migrante <- factor(desc$Migrante,labels = c("Si", "No"))
+desc$Discapacitado <- factor(desc$Discapacitado,labels = c("Si", "No"))
+desc$TipoDiscapacidad <- factor(desc$TipoDiscapacidad,labels = c("Fisica o Motora", "Otra"))
+desc$Desplazado <- factor(desc$Desplazado,labels = c("Si", "No"))
+desc$Indigena <- factor(desc$Indigena,labels = c("Si", "No"))
+desc$LGTBQ <- factor(desc$LGTBQ,labels = c("Si", "No"))
+desc$VictimaConfl <- factor(desc$VictimaConfl,labels = c("Si", "No"))
+desc$Desmovilizado <- factor(desc$Desmovilizado,labels = c("Si", "No"))
+desc$Afrodescendiente <- factor(desc$Afrodescendiente,labels = c("Si", "No"))
+desc$AdolescenteGestante <- factor(desc$AdolescenteGestante,labels = c("Si", "No"))
+
+#La variable edad está categorica, la siguiente sintaxis permite convertirla en una variable númerica. 
+desc$Edad <- as.numeric(as.character(desc$Edad))
+
+# Recategorizar cualitativa
+install.packages("dplyr")
+library(dplyr)
+
+#Obtener el análisis exploratiro o descriptivos de los datos y exportarlos a una tabla en formato académico, con dos columnas: variable y N(%)
+install.packages ("gtsummary")
+library(gtsummary)
+
+tabla_1=tbl_summary(desc)
+tabla_1
+#presentar los porcentajes con un decimal:
+tbl_summary(desc, digits = everything () ~ c(1, 1))
+
+#Exportar el resultado a una tabla en word
+install.packages("flextable")
+library(flextable)
+tabla_1%>%
+  as_flex_table()%>%
+  save_as_docx(path ="tabla_1.docx")
+
+#La anterior tabla lee todas las variables como categoricas. A continuación en la siguiente
+#tabla, indico cuales de las viariables son númericas, ademas se añade etiquetas a las variables
+tabla_1 <- tbl_summary(
+  desc,
+  by = NULL,
+  statistic = list(
+    all_continuous() ~ c("{mean} ({sd})", "{median} ({IQR})"),
+    all_categorical() ~ "{n} ({p}%)"
+  ),
+  digits = all_continuous() ~ 2,
+  type = list(Edad = "continuous2"),  # Especificar que Edad es continua
+  label = list(
+    Grado2 = "Grado académico",
+    TipoDiscapacidad = "Tipo de discapacidad",
+    VictimaConfl = "Victima del conflicto armado",
+    AdolescenteGestante = "Adolescente gestante madre - padre"
+  )
+)
+
+tabla_1
+
+#Exportarla a word:
+library(flextable)
+tabla_1%>%
+  as_flex_table()%>%
+  save_as_docx(path ="tabla_1.docx")
+
+#Analisis del instrumento para medir resiliencia conformado por 46 ítems
+
+#Extraer un conjunto de datos solo con estos ítems:
+desc2=BD%>%
+  select(P1, 
+         P2, 
+         P3, 
+         P4, 
+         P5, 
+         P6, 
+         P7, 
+         P8, 
+         P9, 
+         P10, 
+         P11, 
+         P12, 
+         P13, 
+         P14, 
+         P15, 
+         P16, 
+         P17, 
+         P18, 
+         P19, 
+         P20, 
+         P21, 
+         P22, 
+         P23, 
+         P24, 
+         P25, 
+         P26, 
+         P27, 
+         P28, 
+         P29, 
+         P30, 
+         P31, 
+         P32, 
+         P33, 
+         P34, 
+         P35, 
+         P36, 
+         P37, 
+         P38, 
+         P39, 
+         P40, 
+         P41, 
+         P42, 
+         P43, 
+         P44, 
+         P45, 
+         P46, 
+  )
+
+#Etiquetar
+desc2$P1 <- factor(desc2$P1,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P2 <- factor(desc2$P2,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P3 <- factor(desc2$P3,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P4 <- factor(desc2$P4,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P5 <- factor(desc2$P5,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P6 <- factor(desc2$P6,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P7 <- factor(desc2$P7,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P8 <- factor(desc2$P8,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P9 <- factor(desc2$P9,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P10 <- factor(desc2$P10,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P11 <- factor(desc2$P11,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P12 <- factor(desc2$P12,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P13 <- factor(desc2$P13,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P14 <- factor(desc2$P14,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P15 <- factor(desc2$P15,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P16 <- factor(desc2$P16,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P17 <- factor(desc2$P17,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P18 <- factor(desc2$P18,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P19 <- factor(desc2$P19,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P20 <- factor(desc2$P20,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P21 <- factor(desc2$P21,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P22 <- factor(desc2$P22,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P23 <- factor(desc2$P23,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P24 <- factor(desc2$P24,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P25 <- factor(desc2$P25,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P26 <- factor(desc2$P26,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P27 <- factor(desc2$P27,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P28 <- factor(desc2$P28,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P29 <- factor(desc2$P29,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P30 <- factor(desc2$P30,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P31 <- factor(desc2$P31,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P32 <- factor(desc2$P32,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P33 <- factor(desc2$P33,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P34 <- factor(desc2$P34,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P35 <- factor(desc2$P35,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P36 <- factor(desc2$P36,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P37 <- factor(desc2$P37,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P38 <- factor(desc2$P38,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P39 <- factor(desc2$P39,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P40 <- factor(desc2$P40,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P41 <- factor(desc2$P41,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P42 <- factor(desc2$P42,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P43 <- factor(desc2$P43,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P44 <- factor(desc2$P44,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P45 <- factor(desc2$P45,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+desc2$P46 <- factor(desc2$P46,labels = c("Casi nunca", "Pocas veces","A veces", "Muchas veces", "Casi siempre"))
+
+#Analisis descriptivo con etiquetas
+tabla_1 <- tbl_summary(
+  desc2,
+  statistic = all_categorical() ~ "{n} ({p}%)",
+  digits = all_continuous() ~ 2,
+  label = list(
+    P1 = "1. ¿Cuándo alguien de la familia tiene un problema ayudas?",
+    P2 = "2. ¿En tu casa predomina la armonía?",
+    P3 = "3. ¿Puedes conversar de lo que sea sin temor dentro de tu familia?",
+    P4 = "4. ¿Ante un problema, eres capaz de pedir ayuda a alguien de tu familia?",
+    P5 = "5. ¿Demuestras el cariño que les tienes a los miembros de tu familia?",
+    P6 = "6. ¿Aceptas los defectos de los demás miembros de tu familia?",
+    P7 = "7. ¿Te sientes orgulloso/a de la persona que eres?",
+    P8 = "8. ¿Sientes que eres querido en casa?",
+    P9 = "9. ¿Sientes que en casa te apoyan en lo que te propones?",
+    P10 = "10. ¿Te consideras atractivo/a?",
+    P11 = "11. ¿Estás contento con la figura corporal y apariencia que tienes?",
+    P12 = "12. ¿Quisieras cambiar alguna parte de tu cuerpo?",
+    P13 = "13. Si la conducta de otra persona te molesta, ¿le pides que cambie su comportamiento contigo?",
+    P14 = "14. ¿Le dices a tu familia cuando te molesta algo?",
+    P15 = "15. ¿Expresas tus deseos de realizar algo con facilidad?",
+    P16 = "16. ¿Expresas libremente tu enfado o descontento?",
+    P17 = "17. ¿Reclamas algo cuando es injusto?",
+    P18 = "18. ¿Cuándo le prestas algo a alguien y olvida devolverlo le recuerdas?",
+    P19 = "19. ¿Cuándo sucede algo inesperado lo superas rápido?",
+    P20 = "20. ¿Cuándo algo te sale mal, lo aceptas con facilidad?",
+    P21 = "21. ¿Si tienes problemas con tus familiares, lo resuelves rápidamente?",
+    P22 = "22 ¿En las materias que no te gustan sacas buenas calificaciones?",
+    P23 = "23. Si tu padre/ madre pierden el trabajo, ¿trabajarías para ayudar?",
+    P24 = "24. Si te emborrachas, ¿pides disculpas a tus padres al día siguiente?",
+    P25 = "25. ¿Cuándo tienes que realizar una tarea investigas en otros libros o Internet para mejorar su contenido?",
+    P26 = "26. ¿Ayudas a otras personas cuando están en problemas sin poner en riesgo tu seguridad?",
+    P27 = "27. ¿Cuándo realizas algún trabajo aportas con ideas para que salga mejor?",
+    P28 = "28. ¿Cuándo quieres algo que te gusta buscas la manera de conseguirlo?",
+    P29 = "29. ¿Improvisas para salir de un problema?",
+    P30 = "30. ¿Asumes las consecuencias de tus actos y los afrontas?",
+    P31 = "31. ¿Cuestionas las órdenes o sugerencias de tus padres?",
+    P32 = "32. ¿Es malo consumir alcohol o drogas?",
+    P33 = "33. Si hay algo que no entiendes, ¿procuras investigarlo y luego dar tu punto de vista si te lo piden?",
+    P34 = "34. ¿Cuándo escuchas noticias das tu opinión sobre las mismas?",
+    P35 = "35. ¿Te gustaría decirles a tus profesores que están equivocados?",
+    P36 = "36. ¿Te arrepientes cuando dices cosas inoportunas?",
+    P37 = "37. ¿Después de que has hecho algo peligroso te sientes mal?",
+    P38 = "38. ¿Cuándo le gritas a alguien por cualquier motivo, le pides disculpas después?",
+    P39 = "39. ¿Cuándo te escapas de las clases te sientes mal?",
+    P40 = "40. ¿Cuándo ofreces cosas que no tienes o no puedes dar te sientes preocupado?",
+    P41 = "41. ¿Cuándo agredes a alguien verbalmente o físicamente te sientes mal?",
+    P42 = "42. ¿Cuándo has tomado una mala decisión te arrepientes?",
+    P43 = "43. ¿Ríes y disfrutas de los chistes que hacen tus amigos y compañeros?",
+    P44 = "44. ¿Cuándo recibes una noticia que consideras buena saltas de alegría?",
+    P45 = "45. ¿Crees que la vida es linda?",
+    P46 = "46. ¿Hablas de tus problemas sentimentales con alguien?"
+  )
+)
+tabla_1
+
+#Exportar a word
+install.packages("flextable")
+library(flextable)
+tabla_1%>%
+  as_flex_table()%>%
+  save_as_docx(path ="tabla_1.docx")
+
+#Analisis para cada institución educativa
+
+#Construir data con las variables para el análisis descriptivo
+IE=BD%>%
+  select(Institucion, Grado2, Sexo, Edad, Estrato, Municipio, Nacionalidad, Migrante, Discapacitado, 
+         TipoDiscapacidad, Desplazado, Indigena, LGTBQ, VictimaConfl, Desmovilizado, 
+         Afrodescendiente, AdolescenteGestante, D1_Funcionalidad, D2_Autoestima, 
+         D3_Asertividad, D4_Adaptabilidad, D5_Creatividad, D6_Pensamientoc,
+         D7_Impulsividad, D8_Afectividad, Resiliencia)
+
+#Etiquetar
+IE$Sexo <- factor(IE$Sexo,labels = c("Masculino", "Femenino",NA))
+IE$Municipio <- factor(IE$Municipio,labels = c("Bello", "Medellín","Copacabana"))
+IE$Nacionalidad <- factor(IE$Nacionalidad,labels = c("Colombiano", "Venezolano","Ecuatoriano","Curazao"))
+IE$Migrante <- factor(IE$Migrante,labels = c("Si", "No"))
+IE$Discapacitado <- factor(IE$Discapacitado,labels = c("Si", "No"))
+IE$TipoDiscapacidad <- factor(IE$TipoDiscapacidad,labels = c("Fisica o Motora", "Otra"))
+IE$Desplazado <- factor(IE$Desplazado,labels = c("Si", "No"))
+IE$Indigena <- factor(IE$Indigena,labels = c("Si", "No"))
+IE$LGTBQ <- factor(IE$LGTBQ,labels = c("Si", "No"))
+IE$VictimaConfl <- factor(IE$VictimaConfl,labels = c("Si", "No"))
+IE$Desmovilizado <- factor(IE$Desmovilizado,labels = c("Si", "No"))
+IE$Afrodescendiente <- factor(IE$Afrodescendiente,labels = c("Si", "No"))
+IE$AdolescenteGestante <- factor(IE$AdolescenteGestante,labels = c("Si", "No"))
+
+IE$Edad <- as.numeric(as.character(IE$Edad))
+
+#Construir data con cada institución educativa
+IE1 <- IE %>% filter(Institucion == "IE1")
+IE2 <- IE %>% filter(Institucion == "IE2")
+IE3 <- IE %>% filter(Institucion == "IE3")
+IE4 <- IE %>% filter(Institucion == "IE4")
+IE5 <- IE %>% filter(Institucion == "IE5")
+
+#Analisis descriptivo para cada Institución Educativa
+#IE1
+tabla_1 <- tbl_summary(
+  IE1,
+  by = NULL,
+  statistic = list(
+    all_continuous() ~ c("{mean} ({sd})", "{median} ({IQR})"),
+    all_categorical() ~ "{n} ({p}%)"
+  ),
+  digits = all_continuous() ~ 2,
+  type = list(Edad = "continuous2"),
+  label = list(
+    Grado2 = "Grado académico",
+    TipoDiscapacidad = "Tipo de discapacidad",
+    VictimaConfl = "Victima del conflicto armado",
+    AdolescenteGestante = "Adolescente gestante madre - padre"
+  )
+)
+
+tabla_1
+
+#Exportarla a word:
+install.packages("flextable")
+library(flextable)
+tabla_1%>%
+  as_flex_table()%>%
+  save_as_docx(path ="tabla_1.docx")
+
+#IE2
+tabla_2 <- tbl_summary(
+  IE2,
+  by = NULL,
+  statistic = list(
+    all_continuous() ~ c("{mean} ({sd})", "{median} ({IQR})"),
+    all_categorical() ~ "{n} ({p}%)"
+  ),
+  digits = all_continuous() ~ 2,
+  type = list(Edad = "continuous2"),
+  label = list(
+    Grado2 = "Grado académico",
+    TipoDiscapacidad = "Tipo de discapacidad",
+    VictimaConfl = "Victima del conflicto armado",
+    AdolescenteGestante = "Adolescente gestante madre - padre"
+  )
+)
+
+tabla_2
+tabla_2%>%
+  as_flex_table()%>%
+  save_as_docx(path ="tabla_2.docx")
+
+#IE3
+tabla_3 <- tbl_summary(
+  IE3,
+  by = NULL,
+  statistic = list(
+    all_continuous() ~ c("{mean} ({sd})", "{median} ({IQR})"),
+    all_categorical() ~ "{n} ({p}%)"
+  ),
+  digits = all_continuous() ~ 2,
+  type = list(Edad = "continuous2"),
+  label = list(
+    Grado2 = "Grado académico",
+    TipoDiscapacidad = "Tipo de discapacidad",
+    VictimaConfl = "Victima del conflicto armado",
+    AdolescenteGestante = "Adolescente gestante madre - padre"
+  )
+)
+
+tabla_3
+tabla_3%>%
+  as_flex_table()%>%
+  save_as_docx(path ="tabla_3.docx")
+
+
+#IE4
+tabla_4 <- tbl_summary(
+  IE4,
+  by = NULL,
+  statistic = list(
+    all_continuous() ~ c("{mean} ({sd})", "{median} ({IQR})"),
+    all_categorical() ~ "{n} ({p}%)"
+  ),
+  digits = all_continuous() ~ 2,
+  type = list(Edad = "continuous2"),
+  label = list(
+    Grado2 = "Grado académico",
+    TipoDiscapacidad = "Tipo de discapacidad",
+    VictimaConfl = "Victima del conflicto armado",
+    AdolescenteGestante = "Adolescente gestante madre - padre"
+  )
+)
+
+tabla_4
+tabla_4%>%
+  as_flex_table()%>%
+  save_as_docx(path ="tabla_4.docx")
+
+
+#IE5
+tabla_5 <- tbl_summary(
+  IE5,
+  by = NULL,
+  statistic = list(
+    all_continuous() ~ c("{mean} ({sd})", "{median} ({IQR})"),
+    all_categorical() ~ "{n} ({p}%)"
+  ),
+  digits = all_continuous() ~ 2,
+  type = list(Edad = "continuous2"),
+  label = list(
+    Grado2 = "Grado académico",
+    TipoDiscapacidad = "Tipo de discapacidad",
+    VictimaConfl = "Victima del conflicto armado",
+    AdolescenteGestante = "Adolescente gestante madre - padre"
+  )
+)
+
+tabla_5
+tabla_5%>%
+  as_flex_table()%>%
+  save_as_docx(path ="tabla_5.docx")
+
+
